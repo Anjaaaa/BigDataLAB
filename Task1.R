@@ -96,7 +96,9 @@ print(correctly_classified(Data, diagnosis_knn))
 # 1.5 Validation
 library(caret)
 set.seed(2017)
-id_train <- createDataPartition(Data, p = 0.8, list=FALSE)
+id_train <- sample(1:dim(Data)[1], 0.8*dim(Data)[1])
 TrainData <- Data[id_train, ]
 ValData <- Data[-id_train, ]
 train_control = trainControl(method = "cv", number=10)
+model <- train(Diagnosis~., data=TrainData, trControl = train_control, method = "nb", tuneGrid = grid)
+print(model)
