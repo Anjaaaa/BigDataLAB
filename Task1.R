@@ -7,18 +7,12 @@ Data = read.table("BreastCancerDataTrain.txt", header=TRUE)
 
 # First five PCA-components
 PC <- prcomp(Data[,-1])
-PC_1 <- PC$x[,1]
-PC_2 <- PC$x[,2]
-PC_3 <- PC$x[,3]
-PC_4 <- PC$x[,4]
-PC_5 <- PC$x[,5]
-
 
 # Function to calculate correctly classified patients
-correctly_classified <- function(DataSet, prediction_of_M){
+correctly_classified <- function(DataSet, prediction){
   correct = 0
   for (i in 1:length(as.data.frame(t(DataSet)))){
-    if (prediction_of_M[i] == DataSet$Diagnosis[i]){
+    if (prediction[i] == DataSet$Diagnosis[i]){
       correct = correct + 1
     }
   }
@@ -30,23 +24,18 @@ correctly_classified <- function(DataSet, prediction_of_M){
 pdf('pairwisePlot.pdf')
 # red is manignent
 labels <- (Data$Diagnosis == "M")+1
-pairs(~PC_1+PC_2+PC_3+PC_4+PC_5, col=labels)
+pairs(~PC$x[,1]+PC$x[,2]+PC$x[,3]+PC$x[,4]+PC$x[,5], col=labels)
 dev.off()
 
 ########################################################
 # 1.2 Linear Discriminant Analysis
-diagnosis_lda <- lda(Data$Diagnosis ~ PC_1 + PC_2, data=Data)
-diagnosis_lda2 <- lda(Data$Diagnosis ~ PC_1 + PC_2, data=Data, CV=TRUE)
-
-# diagonal of table gives the correctly classified
-# the other entries give the wrongly classified
-table(diagnosis_lda2$class, Data[,1])
+lda <- lda(Data$Diagnosis ~ ., data=Data[,-1])
 classifier_lda <- function(NewData){
-  return(predict(diagnosis_lda, NewData)$class)
+  return(predict(lda, NewData)$class)
 }
-# calculate the correctly classified patients
 print("Ratio for Linear Discriminant Analysis: ")
 print(correctly_classified(Data, classifier_lda(Data)))
+print("-----------------------------------")
 
 ########################################################
 # 1.3 Logistic Regression
@@ -59,46 +48,74 @@ for (i in 1:length(diagnosis_bin)){
     diagnosis_bin[i] = 1
   }
 }
-# actual regression
-diagnosis_lr <- glm(diagnosis_bin ~ PC_1+PC_2, family=binomial, data=Data)
-summary(diagnosis_lr) # display results
-
-# classifier
-classifier_lr <- function(PC1, PC2){
-  coeff <- diagnosis_lr$coefficients
-  prob_M = 1 / (1 + exp(-(coeff[1] + PC1*coeff[2] + PC2*coeff[3])))
-  pred_M <- array(0, dim=c(1,length(prob_M)))
-  for (i in 1:length(prob_M))
-    if (prob_M[i] > .5){
-      pred_M[i] = 'M'
-    } else {
-      pred_M[i] ='B'
+logreg <- glm(diagnosis_bin ~ ., family=binomial(link = "logit"), data=Data[,-1])
+# Classifier
+classifier_lr <- function(NewData){
+  coeff <- logreg$coefficients
+  pred_M <- array(0, dim=c(1,length(NewData)))
+  for (i in 1:length(NewData)){
+    prob_M = 1 / (1 + exp(-(coeff[1] + (NewData$radius)*coeff[2] + (NewData$texture)*coeff[3] + (NewData$perimeter)*coeff[4] + (NewData$area)*coeff[5] + (NewData$smoothness)*coeff[6] + (NewData$compactness)*coeff[7] + (NewData$concavity)*coeff[8] + (NewData$concave.points)*coeff[9] + (NewData$symmetry)*coeff[10] + (NewData$fractal.dimension)*coeff[11])))
+    for (i in 1:length(prob_M)){
+      if (prob_M[i] > .5){
+        pred_M[i] = 'M'
+      } else {
+        pred_M[i] ='B'
+      }
     }
+  }
   return(pred_M)
 }
-
-
-# calculate the correctly classified patients
 print("Ratio for Logistic Regression: ")
-print(correctly_classified(Data, classifier_lr(PC_1, PC_2)))
+print(correctly_classified(Data, classifier_lr(Data)))
+print("-----------------------------------")
 
 ########################################################
 # 1.4 K-Nearest Neighbors
 cl = Data$Diagnosis
 diagnosis_knn = knn(Data[,-1], Data[,-1], cl, k = 5)
-table(diagnosis_knn, Data$Diagnosis)
-
-# calculate the correctly classified patients
-print("Ratio for K-Nearest-Neighbors: ")
+print("Ratio for 5-Nearest-Neighbors: ")
 print(correctly_classified(Data, diagnosis_knn))
+print("-----------------------------------")
 
 ########################################################
+# 1.5 Tuning of the knn parameter
+# Dividing into training and validation set
+id_train <- sample(1:dim(Data)[1], 0.8*dim(Data)[1])
+TrainData <- Data[id_train,]
+ValData <- Data[-id_train,]
+
+# Tuning
+correct_tune <- array(0, dim=c(20,1))
+for (i in 1:20){
+  diagnosis = knn(TrainData[,-1], ValData[,-1], cl = TrainData$Diagnosis, k = i)
+  correct_tune[i] = correctly_classified(ValData, diagnosis)
+}
+print(paste0("The largest ratio for knn in the validation run is ",max(correct_tune),"."))
+print(paste0("It occured when using k = ",which.max(correct_tune),"."))
+print("-----------------------------------")
+# Classifier
+classifier_knn <- function(NewData,KnownData,k){
+  diagnosis = knn(KnownData[,-1], NewData, cl = KnownData$Diagnosis, k = k)
+  return(diagnosis)
+}
+
 # 1.5 Validation
 library(caret)
-set.seed(2017)
-id_train <- sample(1:dim(Data)[1], 0.8*dim(Data)[1])
-TrainData <- Data[id_train, ]
-ValData <- Data[-id_train, ]
-train_control = trainControl(method = "cv", number=10)
-model <- train(Diagnosis~., data=TrainData, trControl = train_control, method = "nb", tuneGrid = grid)
-print(model)
+
+compute_lda = classifier_lda(ValData)
+correctly_classified(ValData,compute_lda)
+compute_lr = classifier_lr(ValData)
+correctly_classified(ValData,compute_lr)
+compute_knn = classifier_knn(ValData[,-1],TrainData,which.max(correct_tune))
+correctly_classified(ValData,compute_knn)
+
+########################################################
+# Use Test Data
+Test = read.table("BreastCancerDataTest.txt", header=TRUE)
+
+test_lda = classifier_lda(Test)
+correctly_classified(Test,test_lda)
+test_knn = classifier_knn(Test[,-1],Data,which.max(correct_tune))
+correctly_classified(Test,test_knn)
+test_lr = classifier_lr(Test)
+correctly_classified(Test,test_lr)
