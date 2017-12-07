@@ -29,12 +29,12 @@ dev.off()
 
 ########################################################
 # 1.2 Linear Discriminant Analysis
-lda <- lda(Data$Diagnosis ~ ., data=Data[,-1])
-classifier_lda <- function(NewData){
+lda_all <- lda(Data$Diagnosis ~ ., data=Data[,-1])
+classifier_lda <- function(NewData, lda){
   return(predict(lda, NewData)$class)
 }
 print("Ratio for Linear Discriminant Analysis: ")
-print(correctly_classified(Data, classifier_lda(Data)))
+print(correctly_classified(Data, classifier_lda(Data, lda_all)))
 print("-----------------------------------")
 
 ########################################################
@@ -48,9 +48,9 @@ for (i in 1:length(diagnosis_bin)){
     diagnosis_bin[i] = 1
   }
 }
-logreg <- glm(diagnosis_bin ~ ., family=binomial(link = "logit"), data=Data[,-1])
+logreg_all <- glm(diagnosis_bin ~ ., family=binomial(link = "logit"), data=Data[,-1])
 # Classifier
-classifier_lr <- function(NewData){
+classifier_lr <- function(NewData, logreg){
   coeff <- logreg$coefficients
   pred_M <- array(0, dim=c(1,length(NewData)))
   for (i in 1:length(NewData)){
@@ -66,7 +66,7 @@ classifier_lr <- function(NewData){
   return(pred_M)
 }
 print("Ratio for Logistic Regression: ")
-print(correctly_classified(Data, classifier_lr(Data)))
+print(correctly_classified(Data, classifier_lr(Data, logreg_all)))
 print("-----------------------------------")
 
 ########################################################
@@ -80,6 +80,7 @@ print("-----------------------------------")
 ########################################################
 # 1.5 Tuning of the knn parameter
 # Dividing into training and validation set
+set.seed(1234)
 id_train <- sample(1:dim(Data)[1], 0.8*dim(Data)[1])
 TrainData <- Data[id_train,]
 ValData <- Data[-id_train,]
@@ -102,10 +103,22 @@ classifier_knn <- function(NewData,KnownData,k){
 # 1.5 Validation
 library(caret)
 
-compute_lda = classifier_lda(ValData)
+lda_val <- lda(TrainData$Diagnosis ~ ., data=TrainData[,-1])
+compute_lda = classifier_lda(ValData,lda_val)
 correctly_classified(ValData,compute_lda)
-compute_lr = classifier_lr(ValData)
+
+diagnosis_bin_val <- array(0, dim=c(length(TrainData$Diagnosis),1))
+for (i in 1:length(diagnosis_bin_val)){
+  if (TrainData$Diagnosis[i] == "B"){
+    diagnosis_bin_val[i] = 0
+  } else {
+    diagnosis_bin_val[i] = 1
+  }
+}
+logreg_val <- glm(diagnosis_bin_val ~ ., family=binomial(link = "logit"), data=TrainData[,-1])
+compute_lr = classifier_lr(ValData, logreg_val)
 correctly_classified(ValData,compute_lr)
+
 compute_knn = classifier_knn(ValData[,-1],TrainData,which.max(correct_tune))
 correctly_classified(ValData,compute_knn)
 
@@ -113,9 +126,9 @@ correctly_classified(ValData,compute_knn)
 # Use Test Data
 Test = read.table("BreastCancerDataTest.txt", header=TRUE)
 
-test_lda = classifier_lda(Test)
+test_lda = classifier_lda(Test,lda_all)
 correctly_classified(Test,test_lda)
 test_knn = classifier_knn(Test[,-1],Data,which.max(correct_tune))
 correctly_classified(Test,test_knn)
-test_lr = classifier_lr(Test)
+test_lr = classifier_lr(Test,logreg_all)
 correctly_classified(Test,test_lr)
