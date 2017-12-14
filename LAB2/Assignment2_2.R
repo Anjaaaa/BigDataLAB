@@ -13,6 +13,8 @@ MetaData = read.table("MetaData.txt", header = TRUE)
 library("MASS")
 library("caret")
 library("glmnet")
+library(logisticPCA)
+library(ggplot2)
 #####################################################
 #
 # Task 2.1 Feature extraction
@@ -28,8 +30,6 @@ in_train_gene <- GeneExpressionData[,in_train_meta]
 in_validation_gene <- GeneExpressionData[,-in_train_meta]
 
 PCA <- prcomp(t(in_train_gene))
-pca <- princomp((in_train_gene), cor = TRUE)
-names(pca)
 summary(PCA)
 plot(PCA)
 #####################################################################
@@ -42,17 +42,23 @@ subtypes <- c(in_train_meta_id$SubType)
 
 for (i in 1:length(subtypes)) {
   if (subtypes[i]== 2)
-    subtypes[i]= 1
+    subtypes[i]= "B"
   else
-    subtypes[i]= 0
+    subtypes[i]= "A"
 }
-
 
 #####################################################################
 #
 # Task 2.2
 #
 #####################################################################
+logpca_cv = cv.lpca(t(in_train_gene), ks = 2, ms = 1:10)
+plot(logpca_cv)
+logpca_model = logisticPCA(t(in_train_gene), k = 2, m = which.min(logpca_cv))
+
+
+plot(logpca_model, type = "scores") + geom_point(aes(colour = party)) + 
+  ggtitle("Logistic PCA") + scale_colour_manual(values = c("blue", "red"))
 
 model <- vector()
 for (i in 1:20){
@@ -63,11 +69,9 @@ ctrl <- trainControl(method = "cv", number = 10)
 
 mod_fit <- vector()
 for (j in 1:20){
-mod_fit[j] <- train(x= in_train_gene, y= factor(subtypes), method="glm", family=binomial, trControl = ctrl)
+mod_fit[j] <- train(subtypes ~ PCA$x[,1:i],data = in_train_gene, method="glm", family=binomial, trControl = ctrl)
 }
-mod <- train(factor(subtypes) ~ PCA$x[,1:6],  data=in_train_gene, method="glm", family="binomial", trControl = ctrl)
-pred = predict(mod, newdata=in_validation_gene)
-confusionMatrix(data=pred, testing$Class)
+
 
 #####################################################################
 #
