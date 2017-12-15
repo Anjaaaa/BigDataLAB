@@ -1,8 +1,0 @@
-Assignment1 <- read.csv("~/BigData/Assignment1.R", comment.char="#")
-View(Assignment1)
-install.packages("MASS")
-setwd("~/BigDataAssignment2/BigDataLAB")
-source('~/BigDataAssignment2/BigDataLAB/Assignment2_2.R')
-source('~/BigDataAssignment2/BigDataLAB/Assignment2_2.R')
-source('~/BigDataAssignment2/BigDataLAB/DataGeneration.R')
-source('~/BigDataAssignment2/BigDataLAB/Assignment2_3.R')
