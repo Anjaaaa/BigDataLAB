@@ -4,12 +4,12 @@ load("~/BigDataLAB/LAB3/HWD_train_data.RData")
 seed <- 456
 
 set.seed(seed)
-in_train <- sample(1:dim(data_train)[1], 0.7*dim(data_train)[1])
+in_train <- sample(1:dim(data_train)[1], 0.8*dim(data_train)[1])
 training <- data_train[in_train,]
 testing <- data_train[-in_train,]
 
 set.seed(seed)
-fit <- randomForest(as.factor(V1)~., data = training, importance = TRUE, mtry = 9, ntree = 5000)
+fit <- randomForest(as.factor(V1)~., data = training, importance = TRUE, mtry = 16, ntree = 1000)
 
 print(fit)
 

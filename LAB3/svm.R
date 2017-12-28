@@ -3,7 +3,7 @@ seed <- 456
 library(e1071)
 
 set.seed(seed)
-in_train <- sample(1:dim(data_train)[1], 0.7*dim(data_train)[1])
+in_train <- sample(1:dim(data_train)[1], 0.8*dim(data_train)[1])
 training <- data_train[in_train,]
 testing <- data_train[-in_train,]
 
