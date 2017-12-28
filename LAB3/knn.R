@@ -1,6 +1,10 @@
 library(caret)
 library(class)
 
+seed <- 456
+
+set.seed(seed)
+
 id_train <- sample(1:dim(data_train)[1], 0.8*dim(data_train)[1])
 TrainData <- data_train[id_train,]
 TestData <- data_train[-id_train,]
