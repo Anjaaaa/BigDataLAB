@@ -76,10 +76,82 @@ abline(h=139, col="red")
 ################################################
 
 set.seed(2)
-km.out=kmeans(sd.data, 4, nstart=20)
-km.clusters=km.out$cluster
-table(km.clusters,hc.clusters)
+km.out4=kmeans(sd.data, 4, nstart=20)
+km.out4$betweenss/km.out4$totss
+km.clusters4=km.out4$cluster
+table(km.clusters4,hc.clusters)
 
+set.seed(2)
+km.out5=kmeans(sd.data, 5, nstart=20)
+km.out5$betweenss/km.out5$totss
+km.clusters5=km.out5$cluster
+table(km.clusters5,hc.clusters)
+
+set.seed(2)
+km.out6=kmeans(sd.data, 6, nstart=20)
+km.out6$betweenss/km.out6$totss
+km.clusters6=km.out6$cluster
+table(km.clusters6,hc.clusters)
+
+set.seed(2)
+km.out7=kmeans(sd.data, 7, nstart=20)
+km.out7$betweenss/km.out7$totss
+km.clusters7=km.out7$cluster
+table(km.clusters7,hc.clusters)
+
+set.seed(2)
+km.out8=kmeans(sd.data, 8, nstart=20)
+km.out8$betweenss/km.out8$totss
+km.clusters8=km.out8$cluster
+table(km.clusters8,hc.clusters)
+
+set.seed(2)
+km.out9=kmeans(sd.data, 9, nstart=20)
+km.out9$betweenss/km.out9$totss
+km.clusters9=km.out9$cluster
+table(km.clusters9,hc.clusters)
+
+set.seed(2)
+km.out10=kmeans(sd.data, 10, nstart=20)
+km.out10$betweenss/km.out10$totss
+km.clusters10=km.out10$cluster
+table(km.clusters10,hc.clusters)
+
+set.seed(2)
+km.out11=kmeans(sd.data, 11, nstart=20)
+km.out11$betweenss/km.out11$totss
+km.clusters11=km.out11$cluster
+table(km.clusters11,hc.clusters)
+
+set.seed(2)
+km.out12=kmeans(sd.data, 12, nstart=20)
+km.out12$betweenss/km.out12$totss
+km.clusters12=km.out12$cluster
+table(km.clusters12,hc.clusters)
+
+set.seed(2)
+km.out13=kmeans(sd.data, 13, nstart=20)
+km.out13$betweenss/km.out13$totss
+km.clusters13=km.out13$cluster
+table(km.clusters13,hc.clusters)
+
+set.seed(2)
+km.out14=kmeans(sd.data, 14, nstart=20)
+km.out14$betweenss/km.out14$totss
+km.clusters14=km.out14$cluster
+table(km.clusters14,hc.clusters)
+
+set.seed(2)
+km.out15=kmeans(sd.data, 15, nstart=20)
+km.out15$betweenss/km.out15$totss
+km.clusters15=km.out15$cluster
+table(km.clusters15,hc.clusters)
+
+set.seed(2)
+km.out16=kmeans(sd.data, 16, nstart=20)
+km.out16$betweenss/km.out16$totss
+km.clusters16=km.out16$cluster
+table(km.clusters16,hc.clusters)
 ################################################
 #
 # Task 2c Various number of clusters
