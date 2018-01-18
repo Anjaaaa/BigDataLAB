@@ -74,6 +74,17 @@ abline(h=139, col="red")
 # Task 2b K-means clustering
 #
 ################################################
+set.seed(2)
+km.out2=kmeans(sd.data, 2, nstart=20)
+km.out2$betweenss/km.out2$totss
+km.clusters2=km.out2$cluster
+table(km.clusters2,hc.clusters)
+
+set.seed(2)
+km.out3=kmeans(sd.data, 3, nstart=20)
+km.out3$betweenss/km.out3$totss
+km.clusters3=km.out3$cluster
+table(km.clusters3,hc.clusters)
 
 set.seed(2)
 km.out4=kmeans(sd.data, 4, nstart=20)
@@ -152,8 +163,17 @@ km.out16=kmeans(sd.data, 16, nstart=20)
 km.out16$betweenss/km.out16$totss
 km.clusters16=km.out16$cluster
 table(km.clusters16,hc.clusters)
+
 ################################################
 #
 # Task 2c Various number of clusters
 #
 ################################################
+N = 60
+wcvg = array(0,dim=N)
+x = array(1:N,dim=N)
+for (i in 1:N) {
+  print(i)
+  wcvg[i] = sum(kmeans(sd.data, centers = i)$withinss)
+}
+plot(x, wcvg, type = "b", xlab = "Number of groups", ylab = "Within groups sum of squares", col=ifelse(x==10, "red", "black"), pch=ifelse(x==10, 19, 1))
