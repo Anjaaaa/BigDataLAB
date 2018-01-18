@@ -42,35 +42,65 @@ subtypes <- c(in_train_meta_id$SubType)
 
 for (i in 1:length(subtypes)) {
   if (subtypes[i]== 2)
-    subtypes[i]= "B"
+    subtypes[i]= 1
   else
-    subtypes[i]= "A"
+    subtypes[i]= 0
 }
 
 #####################################################################
 #
-# Task 2.2
+# Task 2.1.2
 #
 #####################################################################
-logpca_cv = cv.lpca(t(in_train_gene), ks = 2, ms = 1:10)
-plot(logpca_cv)
-logpca_model = logisticPCA(t(in_train_gene), k = 2, m = which.min(logpca_cv))
 
 
-plot(logpca_model, type = "scores") + geom_point(aes(colour = party)) + 
-  ggtitle("Logistic PCA") + scale_colour_manual(values = c("blue", "red"))
+model1<- glm(subtypes ~ PCA$x[,1], family = binomial)
+model2<- glm(subtypes ~ PCA$x[,1:2], family = binomial)
+model3<- glm(subtypes ~ PCA$x[,1:3], family = binomial)
+model4<- glm(subtypes ~ PCA$x[,1:4], family = binomial)
+model5<- glm(subtypes ~ PCA$x[,1:5], family = binomial)
+model6<- glm(subtypes ~ PCA$x[,1:6], family = binomial)
+model7<- glm(subtypes ~ PCA$x[,1:7], family = binomial)
+model8<- glm(subtypes ~ PCA$x[,1:8], family = binomial)
+model9<- glm(subtypes ~ PCA$x[,1:9], family = binomial)
+model10<- glm(subtypes ~ PCA$x[,1:10], family = binomial)
+model11<- glm(subtypes ~ PCA$x[,1:11], family = binomial)
+model12<- glm(subtypes ~ PCA$x[,1:12], family = binomial)
+model13<- glm(subtypes ~ PCA$x[,1:13], family = binomial)
+model14<- glm(subtypes ~ PCA$x[,1:14], family = binomial)
+model15<- glm(subtypes ~ PCA$x[,1:15], family = binomial)
+model16<- glm(subtypes ~ PCA$x[,1:16], family = binomial)
+model17<- glm(subtypes ~ PCA$x[,1:17], family = binomial)
+model18<- glm(subtypes ~ PCA$x[,1:18], family = binomial)
+model19<- glm(subtypes ~ PCA$x[,1:19], family = binomial)
+model20<- glm(subtypes ~ PCA$x[,1:20], family = binomial)
 
-model <- vector()
-for (i in 1:20){
-  model[i]<- glm(subtypes ~ PCA$x[,1:i], family = binomial)
-}
 
-ctrl <- trainControl(method = "cv", number = 10)
+train_control <- trainControl(method="cv", number=10)
 
-mod_fit <- vector()
-for (j in 1:20){
-mod_fit[j] <- train(subtypes ~ PCA$x[,1:i],data = in_train_gene, method="glm", family=binomial, trControl = ctrl)
-}
+modelcv <- train(subtypes~., data = t(in_train_gene), trControl = train_control, method = "glm", family= binomial())
+model1cv<- train(subtypes~ PCA$x[,1], data = in_train_gene, trControl = train_control, method = "glm", family=binomial())
+model2cv<- train(subtypes ~ PCA$x[,1:2], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model3cv<- train(subtypes ~ PCA$x[,1:3], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model4cv<- train(subtypes ~ PCA$x[,1:4], data = in_train_gene, trControl = train_control, method = "glm",  family = binomial())
+model5cv<- train(subtypes ~ PCA$x[,1:5], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model6cv<- train(subtypes ~ PCA$x[,1:6], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model7cv<- train(subtypes ~ PCA$x[,1:7], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model8cv<- train(subtypes ~ PCA$x[,1:8], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model9cv<- train(subtypes ~ PCA$x[,1:9], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model10cv<- train(subtypes ~ PCA$x[,1:10], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model11cv<- train(subtypes ~ PCA$x[,1:11], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model12cv<- train(subtypes ~ PCA$x[,1:12], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model13cv<- train(subtypes ~ PCA$x[,1:13], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model14cv<- train(subtypes ~ PCA$x[,1:14], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model15cv<- train(subtypes ~ PCA$x[,1:15], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model16cv<- train(subtypes ~ PCA$x[,1:16], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model17cv<- train(subtypes ~ PCA$x[,1:17], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model18cv<- train(subtypes ~ PCA$x[,1:18], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model19cv<- train(subtypes ~ PCA$x[,1:19], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+model20cv<- train(subtypes ~ PCA$x[,1:20], data = in_train_gene, trControl = train_control, method = "glm", family = binomial())
+
+
 
 
 #####################################################################
@@ -78,3 +108,7 @@ mod_fit[j] <- train(subtypes ~ PCA$x[,1:i],data = in_train_gene, method="glm", f
 # Task 2.3 Variables selection
 #
 #####################################################################
+
+
+
+
