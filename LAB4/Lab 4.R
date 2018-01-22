@@ -109,7 +109,10 @@ par(mfrow=c(1,1))
 for (i in 2:25) {
   set.seed(2)
   grps <- kmeans(sd.data, centers = i)
-  plot(silhouette(grps$cluster, data.dist))
+  clusters = grps$cluster
+  plot(silhouette(clusters, data.dist))
+  pr = prcomp(pots)$x[,1:2]
+  plot(pr, pch = clusters, col=clusters)
 }
 
 # Within groups sum of squares
